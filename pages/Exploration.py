@@ -4,7 +4,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
 import streamlit.components.v1 as components
-
+from ydata_profiling import ProfileReport
 # Try to import ydata_profiling, but make it optional to prevent app crashes
 try:
     from ydata_profiling import ProfileReport
