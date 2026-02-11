@@ -3,8 +3,14 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
-from ydata_profiling import ProfileReport
 import streamlit.components.v1 as components
+
+# Try to import ydata_profiling, but make it optional
+try:
+    from ydata_profiling import ProfileReport
+    HAS_PROFILING = True
+except ImportError:
+    HAS_PROFILING = False
 
 # --- 1. Configure page settings ---
 st.set_page_config(page_title="Data Exploration & Profiling", layout="wide")
@@ -64,15 +70,15 @@ with col3:
 
 # --- 6. Display data preview ---
 st.subheader("📊 Data Preview")
-st.dataframe(df.head(10), use_container_width=True)
+st.dataframe(df.head(10), width='stretch')
 
 # --- 7. Data Types ---
 st.subheader("🏷️ Data Types")
-st.dataframe(df.dtypes.astype(str), use_container_width=True)
+st.dataframe(df.dtypes.astype(str), width='stretch')
 
 # --- 8. Statistical Summary ---
 st.subheader("📈 Statistical Summary")
-st.dataframe(df.describe().round(2), use_container_width=True)
+st.dataframe(df.describe().round(2), width='stretch')
 
 st.markdown("---")
 
@@ -94,7 +100,7 @@ if not missing_data.empty:
         color_continuous_scale='RdYlGn_r'
     )
     st.plotly_chart(fig_missing, use_container_width=True)
-    st.dataframe(missing_data, use_container_width=True)
+    st.dataframe(missing_data, width='stretch')
 else:
     st.success("✅ No missing values detected!")
 
@@ -127,16 +133,19 @@ st.markdown("---")
 
 # --- 12. Auto-generated Profiling Report ---
 st.header("📑 Automated Profiling Report")
-st.markdown("*This may take a moment to generate...*")
 
-if st.button("🚀 Generate Full Profile Report"):
-    with st.spinner("Generating profile report..."):
-        try:
-            profile = ProfileReport(df, explorative=True)
-            st_profile_report(profile)
-            st.success("✅ Profile report generated successfully!")
-        except Exception as e:
-            st.error(f"❌ Error generating profile report: {e}")
+if HAS_PROFILING:
+    st.markdown("*This may take a moment to generate...*")
+    if st.button("🚀 Generate Full Profile Report"):
+        with st.spinner("Generating profile report..."):
+            try:
+                profile = ProfileReport(df, explorative=True)
+                st_profile_report(profile)
+                st.success("✅ Profile report generated successfully!")
+            except Exception as e:
+                st.error(f"❌ Error generating profile report: {e}")
+else:
+    st.warning("⚠️ The 'ydata-profiling' library is not installed. This page provides basic data exploration features without the automated profiling report. For advanced profiling, refer to the Univariate and Bivariate pages.")
 
 st.markdown("---")
 st.info("📌 **Tip:** Use this page to understand your data before diving into deeper analysis and modeling.")
